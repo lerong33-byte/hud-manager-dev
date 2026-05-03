@@ -1,2 +1,2 @@
-# hud-manager-dev
-HUD Manager - Development
+# scstarforge-dev
+SC-ShipForge DEV preview
