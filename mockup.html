@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HUD Manager v9.04-DEV — Builder</title>
+<title>HUD Manager v9.05-DEV — Builder</title>
 <style>
 :root{
   --g:rgba(180,195,215,.92);
@@ -1189,8 +1189,8 @@ body{
     // Use device-pixel resolution but un-scale for the host's CSS zoom so we don't blur
     var z = parseFloat(document.documentElement.style.zoom)||1;
     var cssW = window.innerWidth, cssH = window.innerHeight;
-    var pxW = Math.round(cssW * DPR * z);
-    var pxH = Math.round(cssH * DPR * z);
+    var pxW = Math.round(cssW * DPR);
+    var pxH = Math.round(cssH * DPR);
     canvas.width = pxW; canvas.height = pxH;
     // CSS size compensates for zoom: shrink so zoom scales it back to viewport
     canvas.style.width = (cssW)+'px';
@@ -1206,7 +1206,7 @@ body{
     // Foreground twinkling stars — density scales with viewport area
     stars = [];
     var area = W * H;
-    var n = Math.min(450, Math.floor(area / (5500 * DPR * DPR)));
+    var n = Math.min(250, Math.floor(area / (8000 * DPR * DPR)));
     for(var i=0;i<n;i++){
       stars.push({
         x: Math.random()*W,
@@ -1223,7 +1223,7 @@ body{
     // Galaxy spiral stars — rendered relative to (0,0), translated/rotated each frame
     gStars = [];
     var arms = 2;
-    var GN = Math.min(900, Math.floor(area / (3800 * DPR * DPR)));
+    var GN = Math.min(500, Math.floor(area / (5200 * DPR * DPR)));
     for(var j=0;j<GN;j++){
       var arm = Math.floor(Math.random()*arms);
       var t = Math.pow(Math.random(), 0.55);                  // bias toward outer
@@ -1310,8 +1310,9 @@ body{
 
   var _lastFrameT = 0;
   function frame(now){
+    if(document.hidden){ requestAnimationFrame(frame); return; }
     // FRAME-RATE CAP — render at ~30fps to halve GPU load
-    if(now - _lastFrameT < 33){ requestAnimationFrame(frame); return; }
+    if(now - _lastFrameT < 41){ requestAnimationFrame(frame); return; }
     _lastFrameT = now;
     var t = now / 1000;
     ctx.clearRect(0, 0, W, H);
