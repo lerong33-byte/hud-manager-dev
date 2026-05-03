@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HUD Manager v9.09-DEV</title>
+<title>HUD Manager v9.12-DEV</title>
 <style>
 :root{
   --g:rgba(190,205,222,.95);
@@ -589,6 +589,89 @@ body{background-attachment:fixed;}
 #ldot, .sl-img svg, .pop-img svg, .sl-ship-name {
   animation: none !important;
 }
+
+/* ROLE FILTER MODAL — chrome MFD-style popup */
+#role-modal{position:fixed;inset:0;z-index:9999;display:none;}
+#role-modal[aria-hidden="false"]{display:block;}
+#role-modal-backdrop{position:absolute;inset:0;background:rgba(2,4,10,.78);backdrop-filter:blur(6px);}
+#role-modal-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:min(1100px,90vw);height:min(640px,80vh);
+  background-color:#0a0d14;
+  background-image:
+    radial-gradient(ellipse 130% 90% at 50% 60%, transparent 30%, rgba(0,0,0,.55) 100%),
+    repeating-linear-gradient(0deg, rgba(170,200,230,.045) 0px, transparent 1px, transparent 3px),
+    linear-gradient(180deg, rgba(14,18,26,.96), rgba(8,10,16,.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(190,200,215,.22),
+    inset 0 0 0 5px rgba(14,16,22,.95),
+    inset 0 0 0 6px rgba(60,68,82,.45),
+    inset 0 0 32px rgba(0,0,0,.75),
+    0 16px 60px rgba(0,0,0,.75);
+  clip-path:polygon(20px 0,calc(100% - 20px) 0,100% 20px,100% calc(100% - 8px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 8px),0 20px);
+  display:grid;grid-template-columns:38% 62%;grid-template-rows:1fr;}
+#role-modal-card::before{
+  content:attr(data-label); position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  font-family:'Share Tech Mono','Consolas',monospace;
+  font-size:9px; letter-spacing:5px; font-weight:700;
+  color:rgba(220,235,255,.92);
+  text-shadow:0 0 6px rgba(140,200,255,.65),0 0 12px rgba(80,160,230,.30);
+  padding:3px 16px 3px 26px;
+  border:1px solid rgba(80,140,200,.35);
+  background:radial-gradient(circle 3px at 12px 50%, #4cff80 0%, #1c8830 55%, transparent 80%),
+    linear-gradient(180deg, rgba(20,26,36,.95), rgba(8,10,16,.95));
+  white-space:nowrap; z-index:5;}
+#role-modal-close{position:absolute;top:6px;right:8px;z-index:6;
+  width:26px;height:26px;border:1px solid rgba(170,185,205,.35);
+  background:rgba(8,10,16,.85);color:rgba(220,235,255,.85);
+  font-size:18px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;}
+#role-modal-close:hover{border-color:rgba(230,238,248,.85);color:#fff;}
+
+#role-modal-list{padding:42px 14px 14px;overflow-y:auto;
+  border-right:1px solid rgba(170,185,205,.12);}
+#role-modal-list::-webkit-scrollbar{width:6px;}
+#role-modal-list::-webkit-scrollbar-thumb{background:rgba(170,185,205,.20);}
+.rml-row{display:flex;align-items:center;gap:10px;padding:8px;
+  border:1px solid rgba(170,185,205,.10);background:rgba(8,10,16,.55);
+  margin-bottom:6px;cursor:pointer;transition:background .15s,border-color .15s;}
+.rml-row:hover{background:rgba(170,185,205,.08);border-color:rgba(170,185,205,.35);}
+.rml-row.selected{background:rgba(80,160,230,.10);border-color:rgba(80,160,230,.55);}
+.rml-thumb{width:64px;height:36px;flex-shrink:0;
+  background:rgba(0,0,0,.5);background-size:cover;background-position:center;}
+.rml-info{flex:1;min-width:0;}
+.rml-name{font-size:11px;font-weight:600;letter-spacing:1px;color:rgba(230,238,248,.95);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rml-meta{font-size:8px;letter-spacing:1.5px;color:rgba(170,185,205,.60);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+#role-modal-detail{padding:42px 26px 22px;display:flex;flex-direction:column;
+  position:relative;overflow:hidden;}
+#role-modal-detail-empty{margin:auto;color:rgba(170,185,205,.45);
+  font-size:11px;letter-spacing:3px;}
+#rmd-img{width:100%;height:280px;object-fit:contain;display:block;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.55)) drop-shadow(0 0 16px rgba(180,195,215,.20));}
+#rmd-name{font-size:24px;font-weight:700;letter-spacing:6px;color:rgba(245,250,255,.96);
+  text-align:center;margin-top:14px;
+  text-shadow:0 0 10px rgba(180,200,235,.40);}
+#rmd-meta{font-size:9px;letter-spacing:3px;color:rgba(170,210,240,.65);
+  text-align:center;margin-top:6px;}
+#rmd-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;}
+.rmd-stat{display:flex;flex-direction:column;align-items:center;gap:1px;
+  padding:6px 4px;border:1px solid rgba(170,185,205,.18);background:rgba(8,10,16,.65);}
+.rmd-stat .l{font-size:7.5px;letter-spacing:1.5px;color:rgba(170,185,205,.55);}
+.rmd-stat .v{font-size:14px;font-weight:700;color:rgba(230,238,248,.95);
+  text-shadow:0 0 5px rgba(180,195,215,.35);letter-spacing:.5px;}
+.rmd-stat .v.r{color:#ff8060;}
+.rmd-stat .v.b{color:#7bc8e8;}
+.rmd-stat .v.g{color:#7be0a8;}
+.rmd-go{margin-top:auto;display:block;text-align:center;
+  padding:10px 20px;font-size:10px;letter-spacing:4px;font-weight:700;
+  color:rgba(76,255,128,.92);background:rgba(28,136,48,.10);
+  border:1px solid rgba(76,255,128,.55);text-decoration:none;
+  text-shadow:0 0 6px rgba(76,255,128,.55);
+  transition:background .15s,box-shadow .15s;}
+.rmd-go:hover{background:rgba(76,255,128,.20);
+  box-shadow:0 0 14px rgba(76,255,128,.40),inset 0 0 14px rgba(76,255,128,.15);}
 </style>
 </head>
 <body>
@@ -600,7 +683,7 @@ body{background-attachment:fixed;}
   <a href="#" class="nb">SHOWDOWN</a>
   <a href="#" class="nb">SAVE LOADOUTS</a>
   <a href="#" class="nb">MY FLEET</a>
-  <div id="live-pill"><div id="ldot"></div>v9.09-DEV · PU 4.7.2 LIVE</div>
+  <div id="live-pill"><div id="ldot"></div>v9.12-DEV · PU 4.7.2 LIVE</div>
 </div>
 
 <div id="scene">
@@ -827,6 +910,7 @@ body{background-attachment:fixed;}
 </div>
 
 <script>
+var SHIP_IMG_MAP = {"Gladius":"https://media.starcitizen.tools/0/0c/Gladius_-_Flying_away_from_world_through_debris.jpg","Gladius Valiant":"https://media.starcitizen.tools/7/76/Gladius_Valiants_x2_flying_in_formation.jpg","Avenger Titan":"https://media.starcitizen.tools/4/4b/Avenger_Titan_3.2_sale_Titan_01-Squashed.jpg","Avenger Stalker":"https://media.starcitizen.tools/3/34/Avenger_Stalker_-_In_flight_promo_shot.jpg","Avenger Warlock":"https://media.starcitizen.tools/4/44/Avenger_Warlock_3.2_sale_Warlock_10-Squashed.jpg","Sabre":"https://media.starcitizen.tools/c/c7/Sabre_-_Flying_with_all_guns_firing.jpg","Sabre Comet":"https://media.starcitizen.tools/f/fd/Sabre_Comet_-_Flying_away_from_world_through_debris_field.jpg","Sabre Raven":"https://media.starcitizen.tools/f/f3/Sabre_Raven_in_space_3.9.1.png","Sabre Firebird":"https://media.starcitizen.tools/6/61/Sabre_Firebird_flying_through_clouds_with_sun_behind_-_Cropped.jpg","Eclipse":"https://media.starcitizen.tools/b/bd/Aegis_Eclipse_over_Magda.png","Vanguard Warden":"https://media.starcitizen.tools/4/41/Warden_-_3.6.0_-_Landed_in_hangar_-_Front_Port.jpg","Vanguard Harbinger":"https://media.starcitizen.tools/7/73/Harbinger_-_Main_gun_firing_close_-_Front.jpg","Vanguard Sentinel":"https://media.starcitizen.tools/c/cd/Sentinel_-_Flying_through_debris_field_firing_guns.jpg","Vanguard Hoplite":"https://media.starcitizen.tools/f/f4/HopLite_-_Flying_over_ArcCorp_-_Crop.jpg","Hammerhead":"https://media.starcitizen.tools/c/c8/Ext_03_03-Min.png","Redeemer":"https://media.starcitizen.tools/5/5c/Redeemer_-_Flying_x2_though_canyon_attacking_Cutlass%27s_-_cropped_and_adjusted.jpg","Reclaimer":"https://media.starcitizen.tools/c/cb/Reclaimer_-_Near_world_looking_at_wreckage_-_cropped.jpg","Retaliator":"https://media.starcitizen.tools/4/4a/Retaliator_x2_flying_over_cloud_firing_torpedoes_-_cropped_and_adjusted.png","Arrow":"https://media.starcitizen.tools/0/03/Arrow_Concept_CloudFormation_-_cropped.png","F8C Lightning":"https://media.starcitizen.tools/2/2f/F8C_flying_over_river_through_forest_-_Cropped.png","Hawk":"https://media.starcitizen.tools/6/6a/Star_Citizen-_Low_Flying_Hawk.png","Hurricane":"https://media.starcitizen.tools/8/80/Hurricane_3.2_flyable_sale_Action_02-Squashed.jpg","Gladiator":"https://media.starcitizen.tools/f/f0/Gladator_flying_over_world.png","Carrack":"https://media.starcitizen.tools/9/92/Carrack_over_microTech_3.8.png","Terrapin":"https://media.starcitizen.tools/e/ed/Terrapin_-_x2_in_formation_over_worlds_-_cropped.jpg","Valkyrie":"https://media.starcitizen.tools/0/07/Valkyrie_flying_through_debris_shooting_back_at_ships_-_cut.jpg","Paladin":"https://media.starcitizen.tools/4/47/Paladin_firing_at_pirates_in_debris_field_-_cropped_%26_adjusted.png","MOLE":"https://media.starcitizen.tools/f/f0/Mole_flying_through_space_-_Isometric.jpg","RAFT":"https://media.starcitizen.tools/b/bb/RAFT_-_Flying_over_Lorville_-_cropped_and_adjusted.jpg","SRV":"https://media.starcitizen.tools/5/5a/SRV_towing_cargo_container_into_hangar_-_Cut.png","Defender":"https://media.starcitizen.tools/1/17/Defender_-_Firing_over_Delemar.jpg","Mustang Alpha":"https://media.starcitizen.tools/5/52/Mustang_Alpha_flying_over_Lorville.jpg","Mustang Beta":"https://media.starcitizen.tools/e/ea/Mustang_Beta_-_Flying_past_distant_world.jpg","Mustang Gamma":"https://media.starcitizen.tools/9/96/Mustang_Gamma_flying_over_forest.jpg","Nomad":"https://media.starcitizen.tools/1/1f/Nomad_flying_above_Crusader_clouds_-_Crop.jpg","Mercury Star Runner":"https://media.starcitizen.tools/e/e7/Mercury_-_flying_over_clouds.jpg","Intrepid":"https://media.starcitizen.tools/9/9a/Intrepid_on_Crusader_landing_pad_-_cropped.jpg","Cutlass Black":"https://media.starcitizen.tools/8/87/CutlassBlack_TouchingDown.png","Cutlass Blue":"https://media.starcitizen.tools/d/d4/SKU_Cutlass_Blue.jpg","Cutlass Red":"https://media.starcitizen.tools/a/ac/Cutlass_Red_Squad_Concept.jpg","Cutlass Steel":"https://media.starcitizen.tools/7/72/Drake_cutlass_steel_weapon.jpg","Cutter":"https://media.starcitizen.tools/4/4a/Cutter_flying_over_clouds_-_Cut.jpg","Buccaneer":"https://media.starcitizen.tools/a/ac/Buccaneer_-_3.10_-_Flying_over_Microtech.jpg","Corsair":"https://media.starcitizen.tools/0/0e/SC-3.17_20221116_Corsair_Concept_Art_Recreation.png","Herald":"https://media.starcitizen.tools/3/3e/Herald_landed_on_microTech_3.9.png","Vulture":"https://media.starcitizen.tools/b/b8/Vulture_flying_through_debris_field.jpg","MOTH":"https://media.starcitizen.tools/c/c2/MOTH_in_debris_field_with_arms_extended_-_cropped.jpg","Golem":"https://media.starcitizen.tools/2/2c/Golem_using_mining_laser_in_dense_debris_field_-_cropped.png","Talon":"https://media.starcitizen.tools/f/f5/Talon_-_Diving_blurred_background.jpg","Talon Shrike":"https://media.starcitizen.tools/7/74/Talon_Diving_Concept.jpg","Blade":"https://media.starcitizen.tools/4/4c/Blade-top-isc-2020-06-18.jpg","Glaive":"https://media.starcitizen.tools/3/39/Glaive-iso-isc-2020-06-18.jpg","Prowler":"https://media.starcitizen.tools/a/a4/Prowler_-_Hovering_over_landscape.jpg","Syulen":"https://media.starcitizen.tools/0/01/Syulen_leaving_microTech.png","Shiv":"https://media.starcitizen.tools/8/83/Shiv_flying_through_debris_field_firing_weapons_-_cropped_and_adjusted.jpg","P-52 Merlin":"https://media.starcitizen.tools/a/a6/P-52_-_Undocking_from_Constellation_over_world.jpg","P-72 Archimedes":"https://media.starcitizen.tools/4/48/Archimedes_and_Merlin_-_Flying_in_formation_-_Starboard_-_cropped.png","L-21 Wolf":"https://media.starcitizen.tools/0/03/L-21_Wolf_flying_above_clouds.png","Freelancer":"https://media.starcitizen.tools/9/9f/Freelancer.jpg","Freelancer MAX":"https://media.starcitizen.tools/9/96/Freelancer_MAX_-_flying_above_grey_clouds.jpg","Freelancer DUR":"https://media.starcitizen.tools/9/98/MISC-freelancer-dur-side-3.4.1.jpg","Freelancer MIS":"https://media.starcitizen.tools/0/06/Freelancer_MIS_landed_at_frozen_outpost.jpg","Prospector":"https://media.starcitizen.tools/d/dd/Prospector_-_Hovering_mining_on_cliffside_1.jpg","Razor":"https://media.starcitizen.tools/6/64/Mirai_Razor_landed_in_hangar_-_cropped.png","Razor EX":"https://media.starcitizen.tools/0/04/Razor_EX_-_Flying_low_over_grassland.jpg","Reliant Kore":"https://media.starcitizen.tools/b/ba/Reliant_Kore_Landing_in_New_Babbage_Alpha_3.9.jpg","Starfarer":"https://media.starcitizen.tools/d/d2/Starfarer_-_Flying_over_Lorville_with_traffic_-_cropped_and_adjusted.png","Starfarer Gemini":"https://media.starcitizen.tools/7/7c/Starfarer_Gemini_-_Flying_with_blue_sky_and_clouds_-_cropped.png","Hull A":"https://media.starcitizen.tools/9/9f/Hull-A_taking_off_from_Aberdeen_outpost.jpg","Hull B":"https://media.starcitizen.tools/9/97/Hull_B_flying_away_from_a_jump_point_-_cropped.jpg","Hull C":"https://media.starcitizen.tools/c/ca/Fully_Loaded_Hull_C.png","Starlancer MAX":"https://media.starcitizen.tools/1/10/SC-3.24_20241115_110052_StarlancerMax-Clouds_f.png","Starlancer TAC":"https://media.starcitizen.tools/a/a8/Starlancer_TAC_attacks_surrounding_ships_2_-_cropped.png","Fortune":"https://media.starcitizen.tools/7/73/Fortune_salvaging_crash_site_-_cropped.jpg","Fury":"https://media.starcitizen.tools/b/b9/Mirai_Fury_flying_fast_above_water_blurred_-_cropped.png","Fury MX":"https://media.starcitizen.tools/8/86/Fury_Miru_Concept_Art.png","Guardian":"https://media.starcitizen.tools/0/02/Guardian_landed_in_ArcCorp_with_pilot_walking_towards_it_-_cropped_and_adjusted.jpg","Guardian MX":"https://media.starcitizen.tools/e/e5/Guardian_MX_x2_flying_low_and_fast_over_world_-_cropped.png","Guardian QI":"https://media.starcitizen.tools/2/22/Guardian_QI_over_world_firing_weapons_-_cropped_and_adjusted.jpg","100i":"https://media.starcitizen.tools/8/87/100i_Microtech_-_cropped.png","125a":"https://media.starcitizen.tools/5/57/125a_Microtech_Firing_-_cropped.jpg","135c":"https://media.starcitizen.tools/2/2b/135c_with_100i_and_125a_flying_away_from_Port_Tressler_-_cropped.png","300i":"https://media.starcitizen.tools/3/3f/300i_-_Flying_over_cloudtops_-_cropped.jpg","315p":"https://media.starcitizen.tools/7/7c/315p_-_Flying_high_over_clouds_-_cropped.png","325a":"https://media.starcitizen.tools/0/04/325a_flying_over_snowy_mountains_-_cropped.png","350r":"https://media.starcitizen.tools/6/65/350r_-_Flying_over_Daymar_x2_-_cropped.jpg","400i":"https://media.starcitizen.tools/7/78/400i_cruising_through_Area18_3.15.png","600i Explorer":"https://cstone.space/uifimages/f8ac4c26-8f4d-4cb3-9be2-7d867a95a877.png","85X":"https://cstone.space/uifimages/9dc9c257-c413-416a-ab9b-06fbadf18d1e.png","890 Jump":"https://media.starcitizen.tools/7/76/890_Jump_Leaving_Hurston_3.6.png","M50":"https://cstone.space/uifimages/1b57cdac-693b-410b-8343-68fa194c94ae.png","Constellation Andromeda":"https://media.starcitizen.tools/d/d7/Andromeda_flying_from_Station_-_Front_Starboard.jpg","Constellation Aquila":"https://media.starcitizen.tools/7/7e/Aquila_-_QT_-_Rear_Port.jpg","Constellation Phoenix":"https://media.starcitizen.tools/0/0c/Constellation-phoenix-flyby-01_-_cropped_and_adjusted.jpg","Constellation Taurus":"https://media.starcitizen.tools/9/9d/Constellation_Taurus_-_Flying_through_clouds.jpg","Scorpius":"https://media.starcitizen.tools/3/30/RSI_Scorpius_on_ArcCorp.png","Scorpius Antares":"https://media.starcitizen.tools/5/57/Scorpius_Antares_Concept_Roadmap.png","Polaris":"https://media.starcitizen.tools/d/d2/Polaris_flying_through_asteroid_field_firing_torpedoes_and_missiles_-_cropped.png","Apollo Triage":"https://media.starcitizen.tools/8/82/Apollo_Triage_searching_in_debris_field_-_cropped.png","Mantis":"https://media.starcitizen.tools/8/82/RSI_Mantis_Hasgaha_3.7_2019-11-06.png","Meteor":"https://media.starcitizen.tools/7/78/Meteor_reentry_burn_-_cropped_and_adjusted.jpg","Hermes":"https://media.starcitizen.tools/e/e0/Hermes_flying_away_from_jump_point_-_cropped.jpg","Zeus Mk II CL":"https://media.starcitizen.tools/d/d6/Zeus_mkII_CL_landed_loading_cargo_-_cropped.png","Zeus Mk II ES":"https://media.starcitizen.tools/9/9e/SC-3.24_20241025_204114_Zeus-ES-Good-Doctor_f.png","Salvation":"https://media.starcitizen.tools/2/21/Salvation_flying_away_from_world_-_cropped.jpg","Perseus":"https://media.starcitizen.tools/6/6c/Perseus_angled_combat.jpg","Khartu-Al":"https://media.starcitizen.tools/a/ad/Khartu-Al_x2_firing_weapons_flying_over_mountains.jpg","F7C Hornet Mk2":"https://media.starcitizen.tools/c/cf/F7C_MkI_landed_in_spacestation_hangar.jpg","F7A Hornet Mk2":"https://media.starcitizen.tools/e/e8/F7A_Hornet_Mk_I_x2_flying_low_over_battlefield_-_Cropped_and_colour_adjusted.png","F7C-M Super Hornet Mk2":"https://media.starcitizen.tools/d/d6/Super_Hornet_over_Cellin_3.9.1.png","F7C-S Hornet Ghost Mk2":"https://media.starcitizen.tools/3/36/F7C-S_Hornet_Ghost_in_debris_field_-_Front_Port_-_cropped_and_adjusted.png","F7C-R Hornet Tracker Mk2":"https://media.starcitizen.tools/6/6b/F7C-R_Tracker_flying_over_mountains.jpg","Pisces C8X":"https://media.starcitizen.tools/4/45/Pisces_C8_flying_away_from_Carrack_through_debris_field_-_cropped.png","Ares Inferno":"https://media.starcitizen.tools/6/6d/Ares_Inferno_-_Flying_by_asteroids_firing_gun_-_cropped.jpg","Ares Ion":"https://media.starcitizen.tools/0/0c/Ares_Ion_-_Flying_by_asteroids_firing_gun_-_cropped.jpg","Spirit C1":"https://media.starcitizen.tools/9/95/Crusader_C1_Spirit_at_Winners_Circle.png","Spirit A1":"https://media.starcitizen.tools/6/66/A1_x2_bombing_ground_vehicle_attackers_-_Cut.jpg","Hercules C2":"https://media.starcitizen.tools/c/cc/C2_Feature_Style_clouds.jpg","Hercules M2":"https://media.starcitizen.tools/8/8e/M2_Gallery_Fly_Front.jpg","Hercules A2":"https://media.starcitizen.tools/9/9b/Hercules_A2_-_Flying_and_firing_over_bombed_Area_18.jpg","Aurora MR":"https://media.starcitizen.tools/d/d4/Aurora_MR_flying_above_world_-_Crop.png","Aurora LN":"https://media.starcitizen.tools/d/da/Aurora_LN_-_Flying_over_world.jpg","San'tok.yai":"https://media.starcitizen.tools/c/cb/San%27Tok.Yai_in_battle_over_world_firing_weapons_-_Cut.jpg","MPUV-1C":"https://media.starcitizen.tools/6/66/SC-3.22_20240405_MPUV-Cargo-over-water.png"};
 // ===== ANIMATED STARFIELD + GALAXY ===========================================
 (function(){
   var canvas = document.getElementById('starfield');
@@ -1239,7 +1323,7 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
     return Math.round(n).toLocaleString();
   }
   function loadData(){
-    return fetch('/legacy.html').then(function(r){return r.text();}).then(function(src){
+    return fetch('/').then(function(r){return r.text();}).then(function(src){
       var blocks=[], pos=0, OPEN='<scr'+'ipt', CLOSE='</scr'+'ipt>';
       while(true){
         var s=src.indexOf(OPEN,pos); if(s<0) break;
@@ -1249,7 +1333,9 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
         pos=e+CLOSE.length;
       }
       return new Promise(function(res,rej){
-        var url=URL.createObjectURL(new Blob([blocks.join('\n')],{type:'text/javascript'}));
+        // Wrap each block in its own try/catch so the legacy app's init() errors don't stop SHIP_DATA assignment
+        var safeCode = blocks.map(function(b){ return 'try{\n' + b + '\n}catch(e){console.warn("[dash] legacy blob block error (ignored):", e.message);}'; }).join('\n');
+        var url=URL.createObjectURL(new Blob([safeCode],{type:'text/javascript'}));
         var sc=document.createElement('script');
         sc.src=url;
         sc.onload=function(){URL.revokeObjectURL(url);res({ships:window.SHIP_DATA||{},weapons:window.WEAPONS||[],comps:window.COMP_DB||{}});};
@@ -1286,6 +1372,7 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
       var s = ships[n];
       return {name:n, ship:s, dps:shipDPS(s,wById), shield:shipShield(s,comps), alpha:shipAlpha(s,wById), scm:s.scm||0, role:(s.role||'').toLowerCase()};
     });
+    if(!arr.length){ console.warn('[dash] no ships in data — skipping stat-tile wiring'); return; }
     var topDps   = arr.reduce(function(a,b){return b.dps>a.dps?b:a;});
     var topShld  = arr.reduce(function(a,b){return b.shield>a.shield?b:a;});
     var topAlpha = arr.reduce(function(a,b){return b.alpha>a.alpha?b:a;});
@@ -1338,6 +1425,158 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
       if(pulses[i]) pulses[i].textContent = cnt;
     });
   }).catch(function(e){ console.warn('[dash] data load failed:', e.message, e.stack); });
+})();
+</script>
+
+
+<!-- ROLE FILTER MODAL — opens when a role node is clicked -->
+<div id="role-modal" aria-hidden="true">
+  <div id="role-modal-backdrop"></div>
+  <div id="role-modal-card">
+    <button id="role-modal-close" aria-label="Close">×</button>
+    <div id="role-modal-list">
+      <div id="role-modal-list-inner"></div>
+    </div>
+    <div id="role-modal-detail">
+      <div id="role-modal-detail-empty">Select a ship from the list</div>
+      <div id="role-modal-detail-content" style="display:none">
+        <img id="rmd-img" alt="">
+        <div id="rmd-name">—</div>
+        <div id="rmd-meta">—</div>
+        <div id="rmd-stats"></div>
+        <a id="rmd-open" href="#" class="rmd-go">OPEN IN BUILDER →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// === ROLE NODE CLICK → OPEN FILTER MODAL (uses /data/scwiki.json) ===
+(function(){
+  var modal = document.getElementById('role-modal');
+  if(!modal) return;
+  var card  = document.getElementById('role-modal-card');
+  var listInner = document.getElementById('role-modal-list-inner');
+  var emptyEl = document.getElementById('role-modal-detail-empty');
+  var contentEl = document.getElementById('role-modal-detail-content');
+  var imgEl = document.getElementById('rmd-img');
+  var nameEl = document.getElementById('rmd-name');
+  var metaEl = document.getElementById('rmd-meta');
+  var statsEl = document.getElementById('rmd-stats');
+  var goEl = document.getElementById('rmd-open');
+  var closeBtn = document.getElementById('role-modal-close');
+  var backdrop = document.getElementById('role-modal-backdrop');
+
+  var SCWIKI = null;          // lazy-loaded /data/scwiki.json
+  var loadingPromise = null;
+
+  function loadData(){
+    if(SCWIKI) return Promise.resolve(SCWIKI);
+    if(loadingPromise) return loadingPromise;
+    loadingPromise = fetch('/data/scwiki.json').then(function(r){return r.json();}).then(function(d){
+      SCWIKI = d; return d;
+    }).catch(function(e){ console.warn('[modal] data load failed:', e.message); throw e; });
+    return loadingPromise;
+  }
+
+  function fmtK(n){ if(!n) return '--'; if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M'; if(n>=1e3) return Math.round(n/1e3)+'k'; return Math.round(n).toLocaleString(); }
+
+  // Map dashboard role labels → SC Wiki career strings (case-insensitive substring match)
+  var ROLE_MAP = {
+    fighter:  ['fighter'],
+    bomber:   ['bomber'],
+    gunship:  ['gunship'],
+    freighter:['cargo','transport','freight','industrial'],
+    mining:   ['mining'],
+    salvage:  ['salvage'],
+    explore:  ['exploration','explorer'],
+    medical:  ['medical','support','rescue'],
+    capital:  ['capital','command'],
+  };
+
+  function filterShipsByRole(ships, roleKeys){
+    return Object.entries(ships).filter(function(kv){
+      var role = (kv[1].role||'').toLowerCase();
+      return roleKeys.some(function(rk){ return role.indexOf(rk) > -1; });
+    }).sort(function(a,b){ return a[0].localeCompare(b[0]); });
+  }
+
+  function openModal(label, roleKeys){
+    listInner.innerHTML = '<div style="padding:24px;color:rgba(170,185,205,.55);font-size:11px;letter-spacing:2px">LOADING SHIPS…</div>';
+    contentEl.style.display = 'none';
+    emptyEl.style.display = 'flex';
+    card.setAttribute('data-label', '· ' + label.toUpperCase() + ' · LOADING');
+    modal.setAttribute('aria-hidden','false');
+
+    loadData().then(function(d){
+      var matches = filterShipsByRole(d.ships||{}, roleKeys);
+      card.setAttribute('data-label', '· ' + label.toUpperCase() + ' · ' + matches.length + ' SHIPS');
+      listInner.innerHTML = '';
+      if(!matches.length){
+        listInner.innerHTML = '<div style="padding:24px;color:rgba(170,185,205,.55);font-size:11px;letter-spacing:2px">NO SHIPS FOUND</div>';
+        return;
+      }
+      matches.forEach(function(kv){
+        var n = kv[0], s = kv[1];
+        var row = document.createElement('div');
+        row.className = 'rml-row';
+        var img = s.image || '';
+        row.innerHTML =
+          '<div class="rml-thumb" style="background-image:url(\'' + img + '\')"></div>' +
+          '<div class="rml-info">' +
+            '<div class="rml-name">' + n + '</div>' +
+            '<div class="rml-meta">' + (s.role||'').toUpperCase() + ' · ' + (s.mfr||'').toUpperCase() + (s.crew?' · CREW '+s.crew:'') + '</div>' +
+          '</div>';
+        row.onclick = function(){ selectShip(n, s, row); };
+        listInner.appendChild(row);
+      });
+      // Auto-select first
+      var firstRow = listInner.querySelector('.rml-row');
+      if(firstRow) firstRow.click();
+    }).catch(function(e){
+      listInner.innerHTML = '<div style="padding:24px;color:#ff8060;font-size:11px;letter-spacing:2px">DATA LOAD FAILED — '+e.message+'</div>';
+    });
+  }
+
+  function selectShip(name, ship, rowEl){
+    listInner.querySelectorAll('.rml-row.selected').forEach(function(r){r.classList.remove('selected');});
+    if(rowEl) rowEl.classList.add('selected');
+    emptyEl.style.display = 'none';
+    contentEl.style.display = 'flex';
+    contentEl.style.flexDirection = 'column';
+    if(ship.image){ imgEl.src = ship.image; imgEl.style.display = 'block'; }
+    else { imgEl.style.display = 'none'; }
+    nameEl.textContent = name.toUpperCase();
+    var metaParts = [];
+    if(ship.role) metaParts.push(ship.role.toUpperCase());
+    if(ship.mfr) metaParts.push(ship.mfr.toUpperCase());
+    if(ship.size) metaParts.push('SIZE ' + ship.size);
+    if(ship.crew) metaParts.push('CREW ' + ship.crew);
+    metaEl.textContent = metaParts.join(' · ');
+    var w = ship.weaponry || {};
+    statsEl.innerHTML =
+      '<div class="rmd-stat"><span class="l">DPS</span><span class="v r">' + fmtK(w.turretDPS) + '</span></div>' +
+      '<div class="rmd-stat"><span class="l">ALPHA</span><span class="v r">' + fmtK(w.turretAlpha) + '</span></div>' +
+      '<div class="rmd-stat"><span class="l">SCM</span><span class="v">' + (ship.scm?Math.round(ship.scm):'--') + '</span></div>' +
+      '<div class="rmd-stat"><span class="l">CARGO</span><span class="v b">' + (ship.cargo||'--') + '</span></div>';
+    goEl.href = 'builder.html?ship=' + encodeURIComponent(name);
+  }
+
+  function closeModal(){ modal.setAttribute('aria-hidden','true'); }
+
+  document.querySelectorAll('.rnode').forEach(function(rn){
+    rn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      var nm = rn.querySelector('.rn-nm');
+      var label = nm ? nm.textContent.trim().toLowerCase() : '';
+      var roleKeys = ROLE_MAP[label] || [label];
+      openModal(label, roleKeys);
+    });
+  });
+  if(closeBtn) closeBtn.addEventListener('click', closeModal);
+  if(backdrop) backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
 })();
 </script>
 
