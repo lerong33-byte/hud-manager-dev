@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HUD Manager v9.07-DEV — Dashboard</title>
+<title>HUD Manager v9.09-DEV</title>
 <style>
 :root{
   --g:rgba(190,205,222,.95);
@@ -582,6 +582,13 @@ body{background-attachment:fixed;}
 #fleet{animation:card-in-keep-r .7s cubic-bezier(.22,1.1,.42,1) backwards;animation-delay:180ms;}
 #popular{animation:card-in-bottom-l .7s cubic-bezier(.22,1.1,.42,1) backwards;animation-delay:240ms;}
 #updates{animation:card-in-bottom-r .7s cubic-bezier(.22,1.1,.42,1) backwards;animation-delay:280ms;}
+
+/* === ANIMATIONS DISABLED (GPU savings) === */
+.led, .rn-cnt-pulse, body::after, .saturn, #scene::after, .panel, #title-name,
+.stat-v, #rc-lines path, #rc-lines, .rnode svg, .fl-row, .upd:first-child,
+#ldot, .sl-img svg, .pop-img svg, .sl-ship-name {
+  animation: none !important;
+}
 </style>
 </head>
 <body>
@@ -593,7 +600,7 @@ body{background-attachment:fixed;}
   <a href="#" class="nb">SHOWDOWN</a>
   <a href="#" class="nb">SAVE LOADOUTS</a>
   <a href="#" class="nb">MY FLEET</a>
-  <div id="live-pill"><div id="ldot"></div>v9.07-DEV · PU 4.7.2 LIVE</div>
+  <div id="live-pill"><div id="ldot"></div>v9.09-DEV · PU 4.7.2 LIVE</div>
 </div>
 
 <div id="scene">
@@ -1181,7 +1188,7 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
       if(go) go.href = 'builder.html?ship='+encodeURIComponent(s.name.charAt(0)+s.name.slice(1).toLowerCase());
       if(inner) inner.style.opacity='1';
       idx = (idx+1) % ships.length;
-      setTimeout(nextShip, 6500);
+      setTimeout(nextShip, 14000);  // 14s per ship (was 6.5s — too fast)
     }, 420);
   }, 4500);
 })();
@@ -1193,10 +1200,12 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
   var dir = 1;
   setInterval(function(){
     if(pop.matches(':hover')) return;
-    pop.scrollLeft += dir * 0.6;
-    if(pop.scrollLeft >= pop.scrollWidth - pop.clientWidth - 1) dir = -1;
-    if(pop.scrollLeft <= 0) dir = 1;
-  }, 35);
+    var maxScroll = pop.scrollWidth - pop.clientWidth;
+    if(maxScroll <= 0) return; // nothing to scroll
+    pop.scrollLeft += dir * 0.5;
+    if(pop.scrollLeft >= maxScroll - 2) dir = -1;
+    else if(pop.scrollLeft <= 2) dir = 1;
+  }, 100); // 10x slower tick (was 35ms = ~28fps polling, now 10fps)
 })();
 
 // Constellation lines between role nodes
@@ -1230,7 +1239,7 @@ setTimeout(function(){ window.__animateNumbers(); }, 1500);
     return Math.round(n).toLocaleString();
   }
   function loadData(){
-    return fetch('/index.html').then(function(r){return r.text();}).then(function(src){
+    return fetch('/legacy.html').then(function(r){return r.text();}).then(function(src){
       var blocks=[], pos=0, OPEN='<scr'+'ipt', CLOSE='</scr'+'ipt>';
       while(true){
         var s=src.indexOf(OPEN,pos); if(s<0) break;
